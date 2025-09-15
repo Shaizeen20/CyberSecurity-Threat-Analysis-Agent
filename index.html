@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Security Threat Agent</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.2/plotly.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0f1c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 8px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4ecdc4;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: all 0.6s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.2);
+            border-left-color: #4caf50;
+            color: #a5d6a7;
+        }
+
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.2);
+            border-left-color: #f44336;
+            color: #ef9a9a;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-left-color: #ffc107;
+            color: #fff3cd;
+        }
+
+        .threat-feed {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .threat-item {
+            padding: 15px;
+            border-left: 3px solid #ff6b6b;
+            margin-bottom: 15px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .threat-item:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: translateX(5px);
+        }
+
+        .severity-high {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .severity-medium {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .severity-low {
+            border-left-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(78, 205, 196, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #4ecdc4;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: #4ecdc4;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .summary-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg">
+        <div class="floating-particles"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Cyber Security Threat Agent</h1>
+            <p>Advanced AI-Powered Threat Detection & Analysis System</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('analysis')">🔍 Threat Analysis</button>
+            <button class="nav-tab" onclick="showTab('training')">🧠 Model Training</button>
+            <button class="nav-tab" onclick="showTab('summary')">📋 Incident Summary</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📈 Threat Statistics</h3>
+                    <div class="stat-number">1,247</div>
+                    <p>Threats Detected Today</p>
+                    <div class="chart-container">
+                        <canvas id="threatChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌍 Geographic Distribution</h3>
+                    <div id="geoChart" class="chart-container"></div>
+                </div>
+
+                <div class="card">
+                    <h3>⚠️ Severity Levels</h3>
+                    <div class="chart-container">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚨 Live Threat Feed</h3>
+                    <div class="threat-feed" id="threatFeed">
+                        <div class="threat-item severity-high">
+                            <strong>SQL Injection Attempt</strong><br>
+                            IP: 192.168.1.100 | Time: 14:23:45<br>
+                            Severity: HIGH
+                        </div>
+                        <div class="threat-item severity-medium">
+                            <strong>Brute Force Attack</strong><br>
+                            IP: 10.0.0.25 | Time: 14:20:12<br>
+                            Severity: MEDIUM
+                        </div>
+                        <div class="threat-item severity-low">
+                            <strong>Port Scan</strong><br>
+                            IP: 172.16.0.5 | Time: 14:18:33<br>
+                            Severity: LOW
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Threat Analysis Tab -->
+        <div id="analysis" class="tab-content">
+            <div class="card">
+                <h3>🔍 AI-Powered Threat Analysis</h3>
+                <div class="form-group">
+                    <label for="datasetFile">Upload Dataset (CSV)</label>
+                    <input type="file" class="form-control" id="datasetFile" accept=".csv">
+                </div>
+                <div class="form-group">
+                    <label for="analysisPrompt">Analysis Prompt</label>
+                    <textarea class="form-control" id="analysisPrompt" rows="4" 
+                        placeholder="Enter your analysis requirements... (e.g., 'Analyze the top attack patterns and suggest preventive measures')">Analyze the cybersecurity threats in this dataset. Identify the most common attack types, their geographic distribution, and provide recommendations for improving security posture.</textarea>
+                </div>
+                <button class="btn" onclick="analyzeDataset()">🤖 Analyze with Gemini AI</button>
+                
+                <div id="analysisResult" class="summary-output" style="display: none;">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>AI is analyzing your dataset...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Training Tab -->
+        <div id="training" class="tab-content">
+            <div class="card">
+                <h3>🧠 Model Training & Monitoring</h3>
+                <div class="alert alert-warning">
+                    <strong>Training Status:</strong> Ready to train new models
+                </div>
+                
+                <div class="form-group">
+                    <label for="trainingData">Training Dataset</label>
+                    <input type="file" class="form-control" id="trainingData" accept=".csv">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modelType">Model Type</label>
+                    <select class="form-control" id="modelType">
+                        <option value="attack_classification">Attack Type Classification</option>
+                        <option value="severity_prediction">Severity Level Prediction</option>
+                        <option value="anomaly_detection">Anomaly Detection</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="epochs">Training Epochs</label>
+                    <input type="number" class="form-control" id="epochs" value="100" min="1" max="1000">
+                </div>
+                
+                <button class="btn" onclick="trainModel()">🚀 Start Training</button>
+                <button class="btn btn-danger" onclick="stopTraining()">⏹️ Stop Training</button>
+                
+                <div id="trainingProgress" style="display: none;">
+                    <div class="alert alert-success">
+                        <strong>Training in Progress...</strong><br>
+                        Epoch: <span id="currentEpoch">0</span> / <span id="totalEpochs">100</span><br>
+                        Accuracy: <span id="currentAccuracy">0.0%</span><br>
+                        Loss: <span id="currentLoss">0.0</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trainingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incident Summary Tab -->
+        <div id="summary" class="tab-content">
+            <div class="card">
+                <h3>📋 Incident Summary Generator</h3>
+                <div class="form-group">
+                    <label for="eventId">Event ID</label>
+                    <input type="text" class="form-control" id="eventId" placeholder="Enter event ID (e.g., EVT-2024-001)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="incidentType">Incident Type</label>
+                    <select class="form-control" id="incidentType">
+                        <option value="">Select incident type...</option>
+                        <option value="sql_injection">SQL Injection</option>
+                        <option value="brute_force">Brute Force Attack</option>
+                        <option value="malware">Malware Infection</option>
+                        <option value="ddos">DDoS Attack</option>
+                        <option value="phishing">Phishing Attempt</option>
+                        <option value="insider_threat">Insider Threat</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="severityLevel">Severity Level</label>
+                    <select class="form-control" id="severityLevel">
+                        <option value="">Select severity...</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                
+                <button class="btn" onclick="generateSummary()">📝 Generate Summary</button>
+                
+                <div id="incidentSummary" class="summary-output" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize floating particles
+        function createParticles() {
+            const container = document.querySelector('.floating-particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab and activate nav tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Threat Statistics Chart
+            const threatCtx = document.getElementById('threatChart').getContext('2d');
+            new Chart(threatCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Threats Detected',
+                        data: [45, 89, 134, 201, 156, 78],
+                        borderColor: '#4ecdc4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Severity Chart
+            const severityCtx = document.getElementById('severityChart').getContext('2d');
+            new Chart(severityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [15, 89, 156, 234],
+                        backgroundColor: ['#ff6b6b', '#ffc107', '#17a2b8', '#28a745'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Geographic Distribution
+            const geoData = [{
+                type: 'scattergeo',
+                mode: 'markers',
+                lat: [40.7128, 51.5074, 35.6762, -33.8688, 55.7558],
+                lon: [-74.0060, -0.1278, 139.6503, 151.2093, 37.6173],
+                marker: {
+                    size: [20, 15, 25, 18, 12],
+                    color: ['#ff6b6b', '#ffc107', '#ff6b6b', '#17a2b8', '#28a745'],
+                    line: {
+                        color: '#ffffff',
+                        width: 1
+                    }
+                },
+                text: ['New York: 245 threats', 'London: 178 threats', 'Tokyo: 312 threats', 'Sydney: 89 threats', 'Moscow: 56 threats'],
+                name: 'Threat Locations'
+            }];
+
+            const geoLayout = {
+                geo: {
+                    projection: {
+                        type: 'natural earth'
+                    },
+                    bgcolor: 'rgba(0,0,0,0)',
+                    showland: true,
+                    landcolor: 'rgba(255, 255, 255, 0.1)',
+                    showocean: true,
+                    oceancolor: 'rgba(0, 0, 0, 0.3)',
+                    showlakes: true,
+                    lakecolor: 'rgba(0, 0, 0, 0.3)'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {
+                    color: '#ffffff'
+                }
+            };
+
+            Plotly.newPlot('geoChart', geoData, geoLayout, {responsive: true});
+        }
+
+        // Simulate dataset analysis
+        function analyzeDataset() {
+            const resultDiv = document.getElementById('analysisResult');
+            const prompt = document.getElementById('analysisPrompt').value;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>AI is analyzing your dataset...</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const mockAnalysis = `
+🔍 GEMINI AI ANALYSIS RESULTS
+
+📊 DATASET OVERVIEW:
+• Total Records Analyzed: 15,247 security events
+• Time Range: Last 30 days
+• Geographic Coverage: 47 countries
+
+🚨 TOP THREAT PATTERNS IDENTIFIED:
+
+1. SQL Injection Attacks (34.2%)
+   - Primary Sources: Eastern Europe, Southeast Asia
+   - Peak Times: 02:00-04:00 UTC
+   - Target Sectors: E-commerce, Financial Services
+
+2. Brute Force Attempts (28.7%)
+   - Authentication Protocols: SSH (67%), RDP (33%)
+   - Success Rate: 2.3%
+   - Mitigation: Rate limiting implemented
+
+3. DDoS Attacks (19.1%)
+   - Average Duration: 4.7 hours
+   - Peak Bandwidth: 850 Gbps
+   - Botnet Sources: IoT devices (78%)
+
+🌍 GEOGRAPHIC RISK ANALYSIS:
+• High Risk Regions: 
+  - Eastern Europe: 42% of attacks
+  - Southeast Asia: 31% of attacks
+  - North America: 18% of attacks
+
+⚡ RECOMMENDED SECURITY MEASURES:
+
+1. IMMEDIATE ACTIONS:
+   • Implement Web Application Firewall (WAF)
+   • Enable multi-factor authentication
+   • Deploy rate limiting on all endpoints
+
+2. MEDIUM-TERM STRATEGIES:
+   • Advanced behavioral analytics
+   • Zero-trust network architecture
+   • Enhanced monitoring for IoT devices
+
+3. LONG-TERM IMPROVEMENTS:
+   • AI-powered threat prediction
+   • Automated incident response
+   • Security awareness training
+
+📈 RISK SCORE: 7.3/10 (High)
+🛡️ CURRENT POSTURE: Needs Immediate Attention
+
+💡 AI CONFIDENCE LEVEL: 94.7%
+                `;
+                
+                resultDiv.innerHTML = mockAnalysis;
+            }, 3000);
+        }
+
+        // Simulate model training
+        function trainModel() {
+            const progressDiv = document.getElementById('trainingProgress');
+            const epochs = parseInt(document.getElementById('epochs').value);
+            
+            progressDiv.style.display = 'block';
+            document.getElementById('totalEpochs').textContent = epochs;
+            
+            let currentEpoch = 0;
+            const trainingInterval = setInterval(() => {
+                currentEpoch++;
+                const accuracy = (85 + Math.random() * 10).toFixed(1);
+                const loss = (1.5 - (currentEpoch / epochs) * 1.2 + Math.random() * 0.2).toFixed(3);
+                
+                document.getElementById('currentEpoch').textContent = currentEpoch;
+                document.getElementById('currentAccuracy').textContent = accuracy + '%';
+                document.getElementById('currentLoss').textContent = loss;
+                
+                if (currentEpoch >= epochs) {
+                    clearInterval(trainingInterval);
+                    alert('Training completed successfully! 🎉\nFinal Accuracy: ' + accuracy + '%');
+                }
+            }, 100);
+        }
+
+        function stopTraining() {
+            const progressDiv = document.getElementById('trainingProgress');
+            progressDiv.style.display = 'none';
+            alert('Training stopped.');
+        }
+
+        // Generate incident summary
+        function generateSummary() {
+            const eventId = document.getElementById('eventId').value;
+            const incidentType = document.getElementById('incidentType').value;
+            const severity = document.getElementById('severityLevel').value;
+            const summaryDiv = document.getElementById('incidentSummary');
+            
+            if (!eventId || !incidentType || !severity) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            summaryDiv.style.display = 'block';
+            
+            const mockSummary = `
+📋 INCIDENT SUMMARY REPORT
+════════════════════════════════════
+
+🆔 Event ID: ${eventId}
+📅 Date/Time: ${new Date().toLocaleString()}
+⚠️ Severity: ${severity.toUpperCase()}
+🔍 Type: ${incidentType.replace('_', ' ').toUpperCase()}
+
+📍 INCIDENT DETAILS:
+────────────────────────────────────
+• Source IP: 192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}
+• Target System: Web Server (Apache 2.4.41)
+• Attack Vector: ${incidentType === 'sql_injection' ? 'POST request to /login.php' : 
+                  incidentType === 'brute_force' ? 'Multiple failed login attempts' :
+                  incidentType === 'ddos' ? 'UDP flood attack' : 'Malicious payload detected'}
+• Duration: ${Math.floor(Math.random() * 120)} minutes
+• Impact: ${severity === 'critical' ? 'Service disruption, data compromise possible' :
+            severity === 'high' ? 'Performance degradation, security breach' :
+            severity === 'medium' ? 'Limited access attempts, contained' :
+            'Monitoring alert, no immediate impact'}
+
+🛠️ REMEDIATION STEPS:
+────────────────────────────────────
+${incidentType === 'sql_injection' ? 
+`1. Immediately patch vulnerable SQL queries
+2. Implement parameterized queries
+3. Enable SQL injection protection in WAF
+4. Conduct full database integrity check
+5. Review and sanitize all user input validation` :
+
+incidentType === 'brute_force' ?
+`1. Block source IP address immediately
+2. Reset compromised account passwords
+3. Enable account lockout policies
+4. Implement CAPTCHA on login forms
+5. Deploy multi-factor authentication` :
+
+incidentType === 'ddos' ?
+`1. Activate DDoS mitigation services
+2. Implement rate limiting and traffic shaping
+3. Contact ISP for upstream filtering
+4. Scale infrastructure resources
+5. Monitor for botnet patterns` :
+
+`1. Isolate affected systems immediately
+2. Run full antimalware scans
+3. Check for lateral movement
+4. Review system logs for compromise
+5. Update security signatures and patches`}
+
+📊 TECHNICAL ANALYSIS:
+────────────────────────────────────
+• Confidence Level: ${85 + Math.floor(Math.random() * 15)}%
+• False Positive Probability: ${Math.floor(Math.random() * 10)}%
+• Similar Incidents (30 days): ${Math.floor(Math.random() * 20) + 5}
+• MITRE ATT&CK Framework: ${incidentType === 'sql_injection' ? 'T1190 - Exploit Public-Facing Application' :
+                                        incidentType === 'brute_force' ? 'T1110 - Brute Force' :
+                                        incidentType === 'ddos' ? 'T1498 - Network Denial of Service' :
+                                        'T1566 - Phishing'}
+
+🔔 NOTIFICATION STATUS:
+────────────────────────────────────
+• SOC Team: ✅ Notified
+• CISO Office: ${severity === 'critical' || severity === 'high' ? '✅ Escalated' : '⏳ Pending'}
+• Legal Team: ${severity === 'critical' ? '✅ Informed' : '❌ Not Required'}
+• External Authorities: ${severity === 'critical' ? '⚠️ Under Review' : '❌ Not Required'}
+
+📝 NEXT STEPS:
+────────────────────────────────────
+1. Monitor for additional indicators of compromise
+2. Update threat intelligence feeds
+3. Schedule post-incident review meeting
+4. Document lessons learned
+5. Update security playbooks
+
+═══════════════════════════════════════════════════
+Generated by: Cyber Security Threat Agent v2.0
+Report ID: RPT-${Date.now()}
+Analyst: AI Security Bot
+═══════════════════════════════════════════════════
+            `;
+            
+            summaryDiv.innerHTML = mockSummary;
+        }
+
+        // Add live threat feed updates
+        function updateThreatFeed() {
+            const threatTypes = ['SQL Injection', 'Brute Force', 'Malware', 'DDoS', 'Phishing', 'Port Scan'];
+            const severities = ['high', 'medium', 'low'];
+            const ips = ['192.168.1.', '10.0.0.', '172.16.0.', '203.124.', '45.76.'];
+            
+            const threatFeed = document.getElementById('threatFeed');
+            const randomThreat = threatTypes[Math.floor(Math.random() * threatTypes.length)];
+            const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+            const randomIp = ips[Math.floor(Math.random() * ips.length)] + Math.floor(Math.random() * 255);
+            const currentTime = new Date().toLocaleTimeString();
+            
+            const newThreat = document.createElement('div');
+            newThreat.className = `threat-item severity-${randomSeverity}`;
+            newThreat.innerHTML = `
+                <strong>${randomThreat} Attempt</strong><br>
+                IP: ${randomIp} | Time: ${currentTime}<br>
+                Severity: ${randomSeverity.toUpperCase()}
+            `;
+            
+            threatFeed.insertBefore(newThreat, threatFeed.firstChild);
+            
+            // Keep only last 10 threats
+            while (threatFeed.children.length > 10) {
+                threatFeed.removeChild(threatFeed.lastChild);
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            initCharts();
+            
+            // Update threat feed every 5 seconds
+            setInterval(updateThreatFeed, 5000);
+            
+            // Add some interactive hover effects
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+
+        // Add file upload handling
+        document.getElementById('datasetFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === 'text/csv') {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = `✅ Dataset uploaded successfully: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+                e.target.parentNode.appendChild(alert);
+                
+                setTimeout(() => alert.remove(), 3000);
+            }
+        });
+
+        document.getElementById('trainingData').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === 'text/csv') {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = `✅ Training data loaded: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+                e.target.parentNode.appendChild(alert);
+                
+                setTimeout(() => alert.remove(), 3000);
+            }
+        });
+    </script>
+</body>
+</html>
